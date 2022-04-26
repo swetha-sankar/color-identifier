@@ -1,15 +1,47 @@
 import { StatusBar } from 'expo-status-bar'
 import { registerRootComponent } from 'expo';
 import React from 'react'
+import {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native'
 import { Camera } from 'expo-camera'
+import CameraPreview from "./components/CameraPreview";
+import { FlashMode } from 'expo-camera/build/Camera.types';
 
 export default function App() {
-  const [startCamera, setStartCamera] = React.useState(false)
   const [previewVisible, setPreviewVisible] = React.useState(false)
   const [capturedImage, setCapturedImage] = React.useState<any>(null)
-  let camera: Camera
+  const [hasPermission, setHasPermission] = useState(false);
+  const [flashMode, setFlashMode] = useState("off");
 
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      if (status === 'granted') {
+        setHasPermission(true)
+      } else {
+        setHasPermission(false)
+        Alert.alert('Please enable camera access in settings to use this tool')
+      }
+    })();
+  }, []);
+
+  let camera: Camera
+  const __retakePicture = () => {
+    setCapturedImage(null)
+    setPreviewVisible(false)
+    
+  }
+  const __handleFlash = () => {
+    if (flashMode === 'on') {
+      setFlashMode('off')
+    } else if (flashMode === 'off') {
+      setFlashMode('on')
+    } else {
+      setFlashMode('auto')
+    }
+
+  }
   const __takePicture = async () => {
     if (!camera) return
     const photo = await camera.takePictureAsync()
@@ -18,54 +50,18 @@ export default function App() {
     setCapturedImage(photo)
   }
 
-  const __startCamera = async () => {
-    const { status } = await Camera.requestCameraPermissionsAsync()
-    if (status === 'granted') {
-      setStartCamera(true)
-    } else {
-      Alert.alert('Access denied')
-    }
-  }
   return (
     <View style={styles.container}>
-      {startCamera ? (
+      {hasPermission && previewVisible && capturedImage ? (
+            <CameraPreview photo={capturedImage} retakePicture={__retakePicture} />
+          ) : (
         <Camera
           style={{ flex: 1, width: "100%" }}
+          flashMode={flashMode}
           ref={(r) => {
             camera = r
           }}
-        ></Camera>
-      ) : (
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: '#fff',
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}
         >
-          <TouchableOpacity
-            onPress={__startCamera}
-            style={{
-              width: 130,
-              borderRadius: 4,
-              backgroundColor: '#14274e',
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: 40
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontWeight: 'bold',
-                textAlign: 'center'
-              }}
-            >
-              Take picture
-            </Text>
-          </TouchableOpacity>
           <View
             style={{
               position: 'absolute',
@@ -95,10 +91,29 @@ export default function App() {
                 }}
               />
             </View>
+            <TouchableOpacity
+            onPress={__handleFlash}
+            style={{
+            position: 'absolute',
+            left: '5%',
+            top: '10%',
+            backgroundColor: flashMode === 'off' ? '#000' : '#fff',
+            borderRadius: '50%',
+            height: 25,
+            width: 25
+        }}
+        >
+            <Text
+                style={{
+                fontSize: 20
+                }}
+            >
+            ⚡️
+            </Text>
+        </TouchableOpacity>
           </View>
-        </View>
-
-      )}
+        </Camera>
+          )}
       <StatusBar style="auto" />
     </View>
   )
