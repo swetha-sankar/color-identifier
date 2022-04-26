@@ -7,6 +7,7 @@ import { Camera } from 'expo-camera'
 import CameraPreview from "./components/CameraPreview";
 //import * as ImagePicker from 'expo-image-picker';
 import * as Speech from 'expo-speech';
+import ImageColors from "react-native-image-colors";
 
 export default function App() {
   const [previewVisible, setPreviewVisible] = useState(false)
@@ -20,9 +21,11 @@ export default function App() {
   };
 
   const __getPermissions = async () => {
+    speak("Please grant this application access to your camera");
     const { status } = await Camera.requestCameraPermissionsAsync();
     if (status === 'granted') {
       setHasPermission(true)
+      speak("Camera permission granted");
     } else {
       setHasPermission(false)
       Alert.alert('Please enable camera access in settings to use this tool')
@@ -35,7 +38,7 @@ export default function App() {
 
 
 
-  const __handleUse = () => {
+  const __handleUse = async () => {
     if (capturedImage == null) {
       speak("Button to select photo for use. Please capture an image first.")
       return
@@ -47,7 +50,10 @@ export default function App() {
       setCapturedImage(capturedImage)
       CameraPreview(capturedImage);
       console.log(capturedImage);
+      const uri = capturedImage[uri];
       //make calls to color api here
+      const result = await ImageColors.getColors(uri);
+      console.log(result);
     }
   }
 
@@ -155,7 +161,7 @@ export default function App() {
 
                 }}
               >
-                ✅Use
+                ✅ Use
               </Text>
             </TouchableOpacity>
           </View>
