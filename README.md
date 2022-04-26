@@ -1,11 +1,14 @@
-# Color-Identifier: Take a picture and have the colors identified and read to you
-# Swetha Sankar & Aidan Chao
-## Tool created using Expo and React Native
-Instructions for use:
-> clone repo
-> npm i
-> npm start (or expo start)
-> Download expo go app and scan QR code to see the app!
+# Color-Identifier
+## Swetha Sankar & Aidan Chao
 
-## Troubleshooting
-> Make sure phone is not on silent mode
+*Photo color identification text-to-speech mobile application*
+
+**Instructions for use:**
+> git clone <repo link>
+> 
+> npm i
+> 
+> npm start (or expo start)
+> 
+> Download Expo Go app and scan the QR code outputted to see the app! (NOTE: Turn off silent mode)
+
