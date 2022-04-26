@@ -1,7 +1,6 @@
-import {ImageBackground, View} from "react-native";
+import {ImageBackground, View, TouchableOpacity, Text} from "react-native";
 
-const CameraPreview = ({photo}: any ) => {
-    console.log('hello', photo)
+const CameraPreview = ({photo}: any) => {
     return (
       <View
         style={{
@@ -17,8 +16,7 @@ const CameraPreview = ({photo}: any ) => {
             flex: 1
           }}
         />
-      </View>
-      
+      </View>    
     )
   }
   export default CameraPreview;
