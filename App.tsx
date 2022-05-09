@@ -6,6 +6,8 @@ import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native'
 import { Camera } from 'expo-camera'
 import CameraPreview from "./components/CameraPreview";
 //import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
+import * as FileSystem from 'expo-file-system';
 import * as Speech from 'expo-speech';
 import ImageColors from "react-native-image-colors";
 
@@ -16,9 +18,19 @@ export default function App() {
   const [flashMode, setFlashMode] = useState("off");
   const [usePicture, setUsePicture] = useState(false);
   let camera: Camera
+
   const speak = (thing: string) => {
     Speech.speak(thing);
   };
+
+  function encodeImageFileAsURL(element) {
+    var file = element.files[0];
+    var reader = new FileReader();
+    reader.onloadend = function() {
+      console.log('RESULT', reader.result)
+    }
+    reader.readAsDataURL(file);
+  }
 
   const __getPermissions = async () => {
     speak("Please grant this application access to your camera");
@@ -32,6 +44,7 @@ export default function App() {
       speak("Please enable camera access in settings to use this tool");
     }
   }
+
   useEffect(() => {
     __getPermissions();
   }, []);
@@ -50,9 +63,12 @@ export default function App() {
       setCapturedImage(capturedImage)
       CameraPreview(capturedImage);
       console.log(capturedImage);
-      const uri = capturedImage[uri];
-      //make calls to color api here
-      const result = await ImageColors.getColors(uri);
+      await FileSystem.copyAsync({
+        from: capturedImage["uri"],
+        to: `${FileSystem.documentDirectory}$capturedImage`
+      });
+      MediaLibrary.saveToLibraryAsync(capturedImage);
+      const result = await ImageColors.getColors(`${FileSystem.documentDirectory}$capturedImage`);
       console.log(result);
     }
   }
